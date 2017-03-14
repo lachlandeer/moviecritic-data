@@ -40,7 +40,7 @@ for iYear in relevantYears:
     links = metacritic.scrapeLinks(iYear)
 
     # write to csv
-    writeLinksToCSV(iYear, link, datadir)
+    metacritic.writeLinksToCSV(iYear, links, datadir)
 
     print('pausing for two minutes before starting next year')
     time.sleep(120)

@@ -14,6 +14,7 @@ import requests
 import time
 from random import randint
 import csv
+import re
 
 
 def scrapeLinks(iYear):

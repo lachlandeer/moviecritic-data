@@ -12,18 +12,9 @@ init:
 	$(shell mkdir -p $(OUT)/links)
 	$(shell mkdir -p $(OUT)/data)
 
-	# declare folder locations
-	PROJECT_ROOT = .
+# declare sub directores
+SRC_LIB  = $(SRC)/lib
+SRC_MAIN = $(SRC)/main
 
-	# Source File Locations
-	SRC      = $(PROJECT_ROOT)/src
-
-	# Output Locations
-	OUT                 = $(PROJECT_ROOT)/out
-
-	# declare sub directores
-	SRC_LIB  = $(SRC)/lib
-	SRC_MAIN = $(SRC)/main
-
-	OUT_LINKS = $(OUT)/links
-	OUT_DATA  = $(OUT)/data
+OUT_LINKS = $(OUT)/links
+OUT_DATA  = $(OUT)/data

@@ -35,35 +35,37 @@ def scrapeLinks(iYear):
     ## Main Link Scraper - gets links for all movies in a year
     for iPage in range(0,7):
         print('This is page', iPage, 'of', iYear)
+        try:
+            candidateURL = baseURL + str(iYear) + '&page=' + str(iPage)
 
-        candidateURL = baseURL + str(iYear) + '&page=' + str(iPage)
+            # get the web page as lxml data
+            response = sess.get(candidateURL, headers = headers)
+            page = response.text
+            soup = bs(page,"lxml")
 
-        # get the web page as lxml data
-        response = sess.get(candidateURL, headers = headers)
-        page = response.text
-        soup = bs(page,"lxml")
+            # Find the first movie link's tag
+            anchor = soup.find("div", class_="browse_list_wrapper one")
+            newref = anchor.find_next(attrs={'class':re.compile(r'metascore_w')})
 
-        # Find the first movie link's tag
-        anchor = soup.find("div", class_="browse_list_wrapper one")
-        newref = anchor.find_next(attrs={'class':re.compile(r'metascore_w')})
+            # get all movie links on a page and store in links
+            for iLink in range(1,101):
+                try:
+                    movie_link = newref.find_next("a").get('href')
+                    #print(movie_link)
+                    links.append("http://www.metacritic.com" + movie_link)
 
-        # get all movie links on a page and store in links
-        for iLink in range(1,101):
-            try:
-                movie_link = newref.find_next("a").get('href')
-                #print(movie_link)
-                links.append("http://www.metacritic.com" + movie_link)
+                    iLink = iLink + 1
+                    if newref is not None:
+                        newref = newref.find_next(attrs={'class':re.compile(r'metascore_w')})
+                    else:
+                        break
+                except:
+                    pass
 
-                iLink = iLink + 1
-                if newref is not None:
-                    newref = newref.find_next(attrs={'class':re.compile(r'metascore_w')})
-                else:
-                    break
-            except:
-                pass
-
-        time.sleep(randint(5,15))
-        iPage = iPage + 1
+            time.sleep(randint(5,15))
+            iPage = iPage + 1
+        except:
+            pass
 
     # Return the links to the script calling this function
     return links

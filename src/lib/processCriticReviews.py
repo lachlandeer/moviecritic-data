@@ -218,7 +218,7 @@ def get_allReviews(soup, nReview, movieID, title):
     for idx in range(1, int(nReview)+1):
         try:
             # get score
-            score = get_Score(newref)
+            score = get_score(newref)
             # get author
             author = get_critic(newref)
             # get publication
@@ -247,3 +247,45 @@ def get_allReviews(soup, nReview, movieID, title):
         return df_movie
     else:
         return None
+
+### --- Function to get ALL information from a page of a given movie --- ###
+def scrape_metaScorePage(targetURL, df_metaScore):
+    """
+    We return all information about review scores for a given movie that is indexed
+    by a target URL.
+
+    Outputs:
+        * (to a csv): All critic reviews for the movie
+        * (as a row of a dataframe): the metaScore Information
+                * This row is appended to all metascores for movies released in
+                  a year, and is managed by the main script 'main/get_movieReviews'
+
+    Expected Usage:
+        df_metaScore = scrape_metaScorePage(targetURL, df_metaScore)
+    """
+    soup = get_soup(targetURL)
+
+    if soup is not None:
+        try:
+            # get Meta Information
+            meta_Score, meta_nReview = get_allMeta(soup, movieID)
+            title = get_title(soup)
+
+            # append meta Information
+            df_temp = pd.DataFrame([[movieID, title, meta_Score, meta_nReview]])
+            df_metaScore = df_metaScore.append(df_temp, ignore_index=True)
+
+            # get critic information
+            if meta_nReview is not None:
+                df_movie = get_allReviews(soup, meta_nReview, movieID, title)
+                df_movie.to_csv('critic' + movieID + '.csv', index = False)
+            print('Finished collecting reviews from', targetURL )
+
+            # pass back the updated
+            return df_metaScore
+        except:
+            print('No soup for', targetURL)
+            return df_metaScore
+    else:
+        print('No soup for', targetURL)
+        pass

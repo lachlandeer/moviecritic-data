@@ -67,7 +67,8 @@ def get_metaScore(metaTable):
         output = get_metaScore(metaTable)
     """
     try:
-        meta_Score = metaTable.find_next('span', attrs={'class':re.compile(r'^metascore')}).get_text()
+        meta_Score = metaTable.find_next('span', attrs={'class':re.compile(r'^metascore')}) \
+                            .get_text()
         return meta_Score
     except:
         return None
@@ -82,7 +83,8 @@ def get_nReviews(metaTable):
         output = get_nReviews(metaTable)
     """
     try:
-        meta_nReview_str = metaTable.find_next('span', attrs={'class':re.compile(r'^based_on')}).get_text()
+        meta_nReview_str = metaTable.find_next('span', attrs={'class':re.compile(r'^based_on')})\
+                                .get_text()
         meta_nReview = re.findall(r'\b\d+\b', meta_nReview_str)[0]
         return meta_nReview
     except:
@@ -105,3 +107,143 @@ def get_allMeta(soup, movieID):
         return meta_Score, meta_nReview
     else:
         print('No MetaInfo for', movieID)
+
+### --- Functions to One Critic Review for an individual movie --- ###
+
+def get_title(soup):
+    """
+    Takes the lxml source code from the get_soup function and returns the
+    title of the movie
+
+    Expected Usage:
+        (assumes lxml in variable 'soup')
+        output = get_title(soup)
+    """
+    try:
+        title = soup.find('table', attrs={'class':re.compile(r'simple_summary')}) \
+                    .find_previous("h1").get_text().lower()
+        return title
+    except:
+        return None
+
+def get_score(refpoint):
+    """
+    Searches for the next critic review score from a given reference point,
+    'refpoint', and returns it
+
+    Expected Usage:
+        (a reference point is set - the function 'get_allReviews' manages this)
+        output = get_score(refpoint)
+    """
+    try:
+        score = refpoint.find_next('div', attrs={'class': re.compile(r'^metascore')})\
+                        .get_text()
+        return score
+    except:
+        return None
+
+def get_critic(refpoint):
+    """
+    Searches for the next critic from a given reference point,
+    'refpoint', and returns it
+
+    Expected Usage:
+        (a reference point is set - the function 'get_allReviews' manages this)
+        output = get_critic(refpoint)
+    """
+    try:
+        critic = refpoint.find_next('div', attrs={'class': re.compile(r'^metascore')}) \
+                        .find_next('span', attrs={'class': re.compile(r'^author')})\
+                        .get_text().lower()
+        return critic
+    except:
+        return None
+
+def get_publication(refpoint):
+    """
+    Searches for the next publication from a given reference point,
+    'refpoint', and returns it
+
+    Expected Usage:
+        (a reference point is set - the function 'get_allReviews' manages this)
+        output = get_publication(refpoint)
+    """
+    try:
+        publication = refpoint.find_next('div', attrs={'class': re.compile(r'^metascore')}) \
+                                .find_next('span', attrs={'class': re.compile(r'^source')})\
+                                .get_text().lower()
+        return publication
+    except:
+        return None
+
+def get_reviewLink(refpoint):
+    """
+    Searches for the next link to original website of a critic review from
+    a given reference point, 'refpoint', and returns it
+
+    Expected Usage:
+        (a reference point is set - the function 'get_allReviews' manages this)
+        output = get_reviewLink(refpoint)
+    """
+    try:
+        reviewLink = refpoint.find_next('div', attrs={'class':re.compile(r'^metascore')}) \
+                                .find_next("a", attrs={'class':re.compile(r'^read_full')})\
+                                .get('href')
+        return reviewLink
+    except:
+        return None
+
+### --- Function to get ALL critic reviews for a given movie --- ###
+
+def get_allReviews(soup, nReview, movieID, title):
+    """
+    Collects all (nReview) critic reviews for a movie from the webpage source
+    stored as in lxml format in the variable soup.
+
+    Returns a dataframe 'df_movie' that has the typical row:
+        "movieID", "title", "critic", "publication", "score", "link"
+    where there are nReview rows of data
+
+    Expected usage:
+        df = get_allReviews(soup, nReview, movieID, title):
+    """
+    df_movie = pd.DataFrame()
+
+    # start to find reviews by searching for an anchor to start looking from
+    anchor = soup.find('h2')
+    # this variable will be updated in each iteration to allow us to step through
+    # page and get each review
+    newref = anchor
+
+    for idx in range(1, int(nReview)+1):
+        try:
+            # get score
+            score = get_Score(newref)
+            # get author
+            author = get_critic(newref)
+            # get publication
+            publication = get_publication(newref)
+            # get review link (incase we want text later - we might if we wanna do bias etc)
+            reviewLink = get_reviewLink(newref)
+
+            # write as line of data
+            df_critic = pd.DataFrame([[movieID, title, author, publication, score, reviewLink]])
+
+            # update the reference point
+            if newref is not None:
+                newref = newref.find_next('div',  attrs={'class':re.compile(r'^metascore')})
+            else:
+                break
+
+            # append that week to existing data
+            df_movie = df_movie.append(df_critic, ignore_index=True)
+        except:
+            break
+
+    # package result and send back
+    if not df_movie.empty:
+        df_movie.columns = ["movieID", "title", "critic", "publication", "score", "link"]
+
+        return df_movie
+    else:
+        return None

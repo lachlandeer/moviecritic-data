@@ -255,8 +255,8 @@ def scrape_metaScorePage(targetURL, df_metaScore):
     by a target URL.
 
     Outputs:
-        * (to a csv): All critic reviews for the movie
-        * (as a row of a dataframe): the metaScore Information
+        * (as a movie specific dataframe): All critic reviews for the movie
+        * (as a row of a year specific dataframe): the metaScore Information
                 * This row is appended to all metascores for movies released in
                   a year, and is managed by the main script 'main/get_movieReviews'
 
@@ -278,14 +278,14 @@ def scrape_metaScorePage(targetURL, df_metaScore):
             # get critic information
             if meta_nReview is not None:
                 df_movie = get_allReviews(soup, meta_nReview, movieID, title)
-                df_movie.to_csv('critic' + movieID + '.csv', index = False)
             print('Finished collecting reviews from', targetURL )
 
             # pass back the updated
-            return df_metaScore
+            return df_metaScore, df_movie
         except:
             print('No soup for', targetURL)
-            return df_metaScore
+            df_movie = pd.DataFrame()
+            return df_metaScore, df_movie
     else:
         print('No soup for', targetURL)
         pass

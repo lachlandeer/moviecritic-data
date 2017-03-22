@@ -1,3 +1,5 @@
+SHELL=/bin/bash
+
 # Add paths for sub directories for source and output
 
 init:
@@ -11,6 +13,10 @@ init:
 	# out sub-directories
 	$(shell mkdir -p $(OUT)/links)
 	$(shell mkdir -p $(OUT)/data)
+
+
+	$(shell mkdir -p $(OUT)/data/movieReviews-{2000..2015})
+	$(shell mkdir -p $(OUT)/data/metaScores/)
 
 # declare sub directores
 SRC_LIB  = $(SRC)/lib

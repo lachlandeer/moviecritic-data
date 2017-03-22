@@ -23,7 +23,7 @@ import csv
 # append the ROOT directory to the python path so it can search thru subdirs
 sys.path.insert(0, os.getcwd())
 
-from src.lib import processCriticReviews as metacritic
+from src.lib import processCriticReviews as critics
 
 #Candidate years
 yearStart = int(sys.argv[1])
@@ -39,26 +39,25 @@ df_metaScore = pd.DataFrame()
 
 
 for iYear in relevantYears:
-    for iType in releaseType:
-        linkFile = linkdir + './metacritic-links-' + str(iYear)
+    linkFile = linkdir + '/metacritic-links-' + str(iYear)
 
-        # this is iterable
-        with open(linkFile) as f:
-            for row in csv.reader(f):
-                currentURL = ''.join(row) # convert list to string
-                movieID = currentURL.rsplit('/', 1)[-1].rsplit('.', 1)[0]
-                targetURL = currentURL + '/critic-reviews'
-                print('Now scraping', movieID)
-                df_metaScore, df_movie = scrape_metaScorePage(targetURL, df_metaScore)
+    # this is iterable
+    with open(linkFile) as f:
+        for row in csv.reader(f):
+            currentURL = ''.join(row) # convert list to string
+            movieID = currentURL.rsplit('/', 1)[-1].rsplit('.', 1)[0]
+            targetURL = currentURL + '/critic-reviews'
+            print('Now scraping', movieID)
+            df_metaScore, df_movie = critics.scrape_metaScorePage(targetURL, df_metaScore)
 
-                # save critic reviews for this movie as a DataFrame
-                df_movie.to_csv(datadirRoot + '/' + str(iYear) + '/' + \
-                                    movieID + '-reviews.csv', index = False)
-                time.sleep(randint(5,15))
+            # save critic reviews for this movie as a DataFrame
+            df_movie.to_csv(datadirRoot + '/movieReviews-' + str(iYear) + '/' + \
+                                movieID + '-reviews.csv', index = False)
+            time.sleep(randint(5,15))
 
-        # package the metaScore table
-        if df_metaScore is not None:
-            df_metaScore.columns = ["movieID", "title", "metaScore", "nReviews"]
-            df_metaScore.to_csv(datadirRoot + '/metaScores/' + str(iYear) + \
-                                    '-metaScores.csv', index = False)
-            print('saved metaScores to csv')
+    # package the metaScore table
+    if df_metaScore is not None:
+        df_metaScore.columns = ["movieID", "title", "metaScore", "nReviews"]
+        df_metaScore.to_csv(datadirRoot + '/metaScores/' + str(iYear) + \
+                                '-metaScores.csv', index = False)
+        print('saved metaScores to csv')

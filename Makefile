@@ -1,7 +1,7 @@
 include config.mk
 include init.mk
 
-## getLinks           : scrapes critic reviews by year
+## getReviews           : scrapes critic reviews by year
 .PHONY: getReviews
 getReviews: $(SRC_LIB)/processCriticReviews.py #getLinks
 	python $(SRC_MAIN)/getMovieReviews.py 2002 2003 $(OUT_LINKS) $(OUT_DATA)

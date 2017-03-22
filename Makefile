@@ -4,7 +4,7 @@ include init.mk
 ## getLinks           : scrapes critic reviews by year
 .PHONY: getReviews
 getReviews: $(SRC_LIB)/processCriticReviews.py #getLinks
-	python $(SRC_MAIN)/getMovieReviews.py 2015 2015 $(OUT_LINKS) $(OUT_DATA)
+	python $(SRC_MAIN)/getMovieReviews.py 2002 2003 $(OUT_LINKS) $(OUT_DATA)
 
 ## getLinks           : scrapes weblinks to movie's pages by year
 .PHONY: getLinks

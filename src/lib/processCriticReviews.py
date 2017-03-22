@@ -263,13 +263,13 @@ def get_allReviews(soup, nReview, movieID, title):
 #     Expected Usage:
 #         df_metaScore = scrape_metaScorePage(targetURL, df_metaScore)
 #     """
-#     soup = get_soup(targetURL)
+#     soup = self.get_soup(targetURL)
 #     #print(soup)
 #     if soup is not None:
 #         try:
 #             # get Meta Information
-#             meta_Score, meta_nReview = get_allMeta(soup, movieID)
-#             title = get_title(soup)
+#             meta_Score, meta_nReview = self.get_allMeta(soup, movieID)
+#             title = self.get_title(soup)
 #
 #             # append meta Information
 #             df_temp = pd.DataFrame([[movieID, title, meta_Score, meta_nReview]])
@@ -277,7 +277,7 @@ def get_allReviews(soup, nReview, movieID, title):
 #
 #             # get critic information
 #             if meta_nReview is not None:
-#                 df_movie = get_allReviews(soup, meta_nReview, movieID, title)
+#                 df_movie = self.get_allReviews(soup, meta_nReview, movieID, title)
 #             print('Finished collecting reviews from', targetURL )
 #
 #             # pass back the updated

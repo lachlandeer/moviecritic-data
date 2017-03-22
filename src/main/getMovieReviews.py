@@ -34,13 +34,10 @@ relevantYears = range(yearStart,yearEnd+1)
 linkdir     = sys.argv[3]
 datadirRoot = sys.argv[4]
 
-# Loop over Links in a file
-df_metaScore = pd.DataFrame()
-
 
 for iYear in relevantYears:
     linkFile = linkdir + '/metacritic-links-' + str(iYear)
-
+    df_metaScore = pd.DataFrame()
     # this is iterable
     with open(linkFile) as f:
         for row in csv.reader(f):
@@ -48,8 +45,36 @@ for iYear in relevantYears:
             movieID = currentURL.rsplit('/', 1)[-1].rsplit('.', 1)[0]
             targetURL = currentURL + '/critic-reviews'
             print('Now scraping', movieID)
-            df_metaScore, df_movie = critics.scrape_metaScorePage(targetURL, df_metaScore)
+            ##--- Scraper Start ---##
+            #df_metaScore, df_movie = critics.scrape_metaScorePage(targetURL, df_metaScore)
+            soup = critics.get_soup(targetURL)
+            #print(soup)
+            if soup is not None:
+                try:
+                    # get Meta Information
+                    meta_Score, meta_nReview = critics.get_allMeta(soup, movieID)
+                    title = critics.get_title(soup)
 
+                    # append meta Information
+                    df_temp = pd.DataFrame([[movieID, title, meta_Score, meta_nReview]])
+                    df_metaScore = df_metaScore.append(df_temp, ignore_index=True)
+
+                    # get critic information
+                    if meta_nReview is not None:
+                        df_movie = critics.get_allReviews(soup, meta_nReview, movieID, title)
+                    print('Finished collecting reviews from', targetURL )
+
+                    # pass back the updated
+                    #return df_metaScore, df_movie
+                except:
+                    print('Cannot process', targetURL)
+                    df_movie = pd.DataFrame()
+                    #return df_metaScore, df_movie
+            else:
+                print('No soup for', targetURL)
+                pass
+
+            ##--- Scraper End ---##
             # save critic reviews for this movie as a DataFrame
             df_movie.to_csv(datadirRoot + '/movieReviews-' + str(iYear) + '/' + \
                                 movieID + '-reviews.csv', index = False)

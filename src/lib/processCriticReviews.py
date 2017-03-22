@@ -249,43 +249,43 @@ def get_allReviews(soup, nReview, movieID, title):
         return None
 
 ### --- Function to get ALL information from a page of a given movie --- ###
-def scrape_metaScorePage(targetURL, df_metaScore):
-    """
-    We return all information about review scores for a given movie that is indexed
-    by a target URL.
-
-    Outputs:
-        * (as a movie specific dataframe): All critic reviews for the movie
-        * (as a row of a year specific dataframe): the metaScore Information
-                * This row is appended to all metascores for movies released in
-                  a year, and is managed by the main script 'main/get_movieReviews'
-
-    Expected Usage:
-        df_metaScore = scrape_metaScorePage(targetURL, df_metaScore)
-    """
-    soup = get_soup(targetURL)
-
-    if soup is not None:
-        try:
-            # get Meta Information
-            meta_Score, meta_nReview = get_allMeta(soup, movieID)
-            title = get_title(soup)
-
-            # append meta Information
-            df_temp = pd.DataFrame([[movieID, title, meta_Score, meta_nReview]])
-            df_metaScore = df_metaScore.append(df_temp, ignore_index=True)
-
-            # get critic information
-            if meta_nReview is not None:
-                df_movie = get_allReviews(soup, meta_nReview, movieID, title)
-            print('Finished collecting reviews from', targetURL )
-
-            # pass back the updated
-            return df_metaScore, df_movie
-        except:
-            print('No soup for', targetURL)
-            df_movie = pd.DataFrame()
-            return df_metaScore, df_movie
-    else:
-        print('No soup for', targetURL)
-        pass
+# def scrape_metaScorePage(targetURL, df_metaScore):
+#     """
+#     We return all information about review scores for a given movie that is indexed
+#     by a target URL.
+#
+#     Outputs:
+#         * (as a movie specific dataframe): All critic reviews for the movie
+#         * (as a row of a year specific dataframe): the metaScore Information
+#                 * This row is appended to all metascores for movies released in
+#                   a year, and is managed by the main script 'main/get_movieReviews'
+#
+#     Expected Usage:
+#         df_metaScore = scrape_metaScorePage(targetURL, df_metaScore)
+#     """
+#     soup = get_soup(targetURL)
+#     #print(soup)
+#     if soup is not None:
+#         try:
+#             # get Meta Information
+#             meta_Score, meta_nReview = get_allMeta(soup, movieID)
+#             title = get_title(soup)
+#
+#             # append meta Information
+#             df_temp = pd.DataFrame([[movieID, title, meta_Score, meta_nReview]])
+#             df_metaScore = df_metaScore.append(df_temp, ignore_index=True)
+#
+#             # get critic information
+#             if meta_nReview is not None:
+#                 df_movie = get_allReviews(soup, meta_nReview, movieID, title)
+#             print('Finished collecting reviews from', targetURL )
+#
+#             # pass back the updated
+#             return df_metaScore, df_movie
+#         except:
+#             print('Cannot process', targetURL)
+#             df_movie = pd.DataFrame()
+#             return df_metaScore, df_movie
+#     else:
+#         print('No soup for', targetURL)
+#         pass
